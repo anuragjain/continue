@@ -136,28 +136,28 @@ const Layout = () => {
     [],
   );
 
-  useWebviewListener(
-    "openOnboardingCard",
-    async () => {
-      onboardingCard.open("Best");
-    },
-    [],
-  );
+  // useWebviewListener(
+  //   "openOnboardingCard",
+  //   async () => {
+  //     onboardingCard.open("Best");
+  //   },
+  //   [],
+  // );
 
-  useWebviewListener(
-    "setupLocalConfig",
-    async () => {
-      onboardingCard.open("Local");
-    },
-    [],
-  );
+  // useWebviewListener(
+  //   "setupLocalConfig",
+  //   async () => {
+  //     onboardingCard.open("Local");
+  //   },
+  //   [],
+  // );
 
   useEffect(() => {
     if (
       isNewUserOnboarding() &&
       (location.pathname === "/" || location.pathname === "/index.html")
     ) {
-      onboardingCard.open("Quickstart");
+      onboardingCard.open("Local");
     }
   }, [location]);
 

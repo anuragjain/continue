@@ -85,22 +85,22 @@ function OnboardingLocalTab() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col">
-        <p className="text-lg font-bold leading-tight mb-2">Install Ollama</p>
-        <OllamaStatus isOllamaConnected={isOllamaConnected} />
-      </div>
+      {/*<div className="flex flex-col">*/}
+      {/*  <p className="text-lg font-bold leading-tight mb-2">Install Ollama</p>*/}
+      {/*  <OllamaStatus isOllamaConnected={isOllamaConnected} />*/}
+      {/*</div>*/}
 
-      <OllamaModelDownload
-        title="Download Chat model"
-        modelName={LOCAL_ONBOARDING_CHAT_MODEL}
-        hasDownloaded={hasDownloadedChatModel}
-      />
+      {/*<OllamaModelDownload*/}
+      {/*  title="Download Chat model"*/}
+      {/*  modelName={LOCAL_ONBOARDING_CHAT_MODEL}*/}
+      {/*  hasDownloaded={hasDownloadedChatModel}*/}
+      {/*/>*/}
 
-      <OllamaModelDownload
-        title="Download Autocomplete model"
-        modelName={LOCAL_ONBOARDING_FIM_MODEL}
-        hasDownloaded={hasDownloadedAutocompleteModel}
-      />
+      {/*<OllamaModelDownload*/}
+      {/*  title="Download Autocomplete model"*/}
+      {/*  modelName={LOCAL_ONBOARDING_FIM_MODEL}*/}
+      {/*  hasDownloaded={hasDownloadedAutocompleteModel}*/}
+      {/*/>*/}
 
       <div className="mt-4 w-full">
         <Button
