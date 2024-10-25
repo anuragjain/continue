@@ -50,7 +50,7 @@ class AutocompleteSpinnerWidget(project: Project): EditorBasedWidget(project), S
 
     override fun getTooltipText(): String? {
         val enabled = service<ContinueExtensionSettings>().state.enableTabAutocomplete
-        return if (enabled) "Continue autocomplete enabled" else "Continue autocomplete disabled"
+        return if (enabled) "Jarvis autocomplete enabled" else "Jarvis autocomplete disabled"
     }
 
     override fun getClickConsumer(): Consumer<MouseEvent>? {
@@ -93,7 +93,7 @@ class AutocompleteSpinnerWidgetFactory: StatusBarWidgetFactory {
     }
 
     override fun getDisplayName(): String {
-        return "Continue Autocomplete"
+        return "Jarvis Autocomplete"
     }
 
     override fun isAvailable(p0: Project): Boolean {

@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.continuedev.continueintellijextension</id>
-    <name>Continue</name>
+    <name>Jarvis</name>
     <vendor>continue-dev</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.json</depends>
@@ -109,9 +109,9 @@
 
         <action id="continue.newContinueSession"
                 class="com.github.continuedev.continueintellijextension.actions.NewContinueSessionAction"
-                text="Start New Continue Session"
+                text="Start New Jarvis Session"
                 icon="AllIcons.General.Add"
-                description="Start New Continue Session">
+                description="Start New Jarvis Session">
         </action>
 
         <action id="continue.viewHistory"
