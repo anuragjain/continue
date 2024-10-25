@@ -45,12 +45,10 @@ const val DEFAULT_CONFIG = """
     }
   ],
   "contextProviders": [
+    { "name": "folder", "params": {} },
+    { "name": "codebase", "params": {} },
     { "name": "diff", "params": {} },
-    {
-      "name": "open",
-      "params": {}
-    },
-    { "name": "terminal", "params": {} }
+    { "name": "open", "params": {} }
   ]
 }
 """

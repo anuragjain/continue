@@ -33,12 +33,14 @@ export const defaultContextProvidersVsCode: ContextProviderWithParams[] = [
   { name: "problems", params: {} },
   { name: "folder", params: {} },
   { name: "codebase", params: {} },
+  { name: "open", params: {} },
 ];
 
 export const defaultContextProvidersJetBrains: ContextProviderWithParams[] = [
   { name: "diff", params: {} },
   { name: "folder", params: {} },
   { name: "codebase", params: {} },
+  { name: "open", params: {} },
 ];
 
 export const defaultSlashCommandsVscode: SlashCommandDescription[] = [
