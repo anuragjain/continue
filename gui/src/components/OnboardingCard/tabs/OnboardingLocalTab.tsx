@@ -78,7 +78,7 @@ function OnboardingLocalTab() {
       OLLAMA_CHECK_INTERVAL_MS,
     );
 
-    fetchDownloadedModels();
+    void fetchDownloadedModels();
 
     return () => clearInterval(intervalId);
   }, []);
@@ -89,7 +89,6 @@ function OnboardingLocalTab() {
       {/*  <p className="text-lg font-bold leading-tight mb-2">Install Ollama</p>*/}
       {/*  <OllamaStatus isOllamaConnected={isOllamaConnected} />*/}
       {/*</div>*/}
-
       {/*<OllamaModelDownload*/}
       {/*  title="Download Chat model"*/}
       {/*  modelName={LOCAL_ONBOARDING_CHAT_MODEL}*/}
