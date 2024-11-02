@@ -1,8 +1,8 @@
 {
-  "name": "continue",
+  "name": "jarvis",
   "icon": "media/icon.png",
   "author": "Continue Dev, Inc",
-  "version": "0.8.64",
+  "version": "0.8.68",
   "repository": {
     "type": "git",
     "url": "https://github.com/continuedev/continue"
@@ -18,7 +18,7 @@
   "homepage": "https://continue.dev",
   "qna": "https://github.com/continuedev/continue/issues/new/choose",
   "license": "Apache-2.0",
-  "displayName": "Continue - Codestral, Claude, and more",
+  "displayName": "Jarvis - Codestral, Claude, and more",
   "pricing": "Free",
   "description": "The leading open-source AI code assistant",
   "publisher": "Continue",
@@ -67,7 +67,7 @@
       }
     ],
     "configuration": {
-      "title": "Continue",
+      "title": "Jarvis",
       "properties": {
         "continue.telemetryEnabled": {
           "type": "boolean",
@@ -530,7 +530,7 @@
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/vsce": "^2.22.0",
     "cargo-cp-artifact": "^0.1",
-    "esbuild": "0.17.19",
+    "esbuild": "^0.23.1",
     "eslint": "^8.28.0",
     "glob": "^8.0.3",
     "json-schema-to-typescript": "^12.0.0",
@@ -553,7 +553,6 @@
     "cors": "^2.8.5",
     "dbinfoz": "^0.11.0",
     "downshift": "^7.6.0",
-    "esbuild": "^0.17.19",
     "express": "^4.18.2",
     "fkill": "^8.1.0",
     "follow-redirects": "^1.15.4",

@@ -4,4 +4,5 @@ sh scripts_gbl/build.sh
 cd extensions/intellij
 ./gradlew build
 cd ../vscode
+npm i
 npm run package
