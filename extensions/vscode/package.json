@@ -2,7 +2,7 @@
   "name": "jarvis",
   "icon": "media/icon.png",
   "author": "Continue Dev, Inc",
-  "version": "0.8.68",
+  "version": "0.8.93",
   "repository": {
     "type": "git",
     "url": "https://github.com/continuedev/continue"
@@ -528,9 +528,8 @@
     "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
-    "@vscode/vsce": "^2.22.0",
     "cargo-cp-artifact": "^0.1",
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.19.12",
     "eslint": "^8.28.0",
     "glob": "^8.0.3",
     "json-schema-to-typescript": "^12.0.0",
@@ -539,7 +538,7 @@
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3",
     "vite": "^4.3.9",
-    "vsce": "^2.15.0"
+    "@vscode/vsce": "^2.32.0"
   },
   "dependencies": {
     "@electron/rebuild": "^3.2.10",
