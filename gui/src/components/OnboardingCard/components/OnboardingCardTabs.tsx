@@ -7,17 +7,17 @@ interface OnboardingCardTabsProps {
   onTabClick: (tabName: TabTitle) => void;
 }
 
-export type TabTitle = "Quickstart" | "Best" | "Local";
+export type TabTitle = "Local";
 
 export const TabTitles: { [k in TabTitle]: { md: string; default: string } } = {
-  Quickstart: {
-    md: "Quickstart",
-    default: "Quickstart",
-  },
-  Best: {
-    md: "Best",
-    default: "Best experience",
-  },
+  // Quickstart: {
+  //   md: "Quickstart",
+  //   default: "Quickstart",
+  // },
+  // Best: {
+  //   md: "Best",
+  //   default: "Best experience",
+  // },
   Local: {
     md: "Local",
     default: "Local with Ollama",

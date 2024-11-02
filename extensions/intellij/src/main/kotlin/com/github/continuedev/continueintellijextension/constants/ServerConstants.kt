@@ -14,10 +14,33 @@ const val DEFAULT_CONFIG =
 {
   "models": [
     {
-      "model": "claude-3-5-sonnet-20240620",
-      "provider": "anthropic",
-      "apiKey": "",
-      "title": "Claude 3.5 Sonnet"
+      "title": "Jarvis Go",
+      "provider": "ollama",
+      "model": "codellama:7b",
+      "apiBase": "http://localhost:11434",
+      "contextLength": 4096
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "edit",
+      "description": "Edit highlighted code"
+    },
+    {
+      "name": "comment",
+      "description": "Write comments for the highlighted code"
+    },
+    {
+      "name": "share",
+      "description": "Export the current chat session to markdown"
+    },
+    {
+      "name": "cmd",
+      "description": "Generate a shell command"
+    },
+    {
+       "name": "review",
+       "description": "Review my code and provide feedback"
     }
   ],
   "tabAutocompleteModel": {
@@ -34,38 +57,11 @@ const val DEFAULT_CONFIG =
     }
   ],
   "contextProviders": [
-    {
-      "name": "diff",
-      "params": {}
-    },
-    {
-      "name": "folder",
-      "params": {}
-    },
-    {
-      "name": "codebase",
-      "params": {}
-    }
-  ],
-  "slashCommands": [
-    {
-      "name": "edit",
-      "description": "Edit selected code"
-    },
-    {
-      "name": "comment",
-      "description": "Write comments for the selected code"
-    },
-    {
-      "name": "share",
-      "description": "Export the current chat session to markdown"
-    },
-    {
-      "name": "commit",
-      "description": "Generate a git commit message"
-    }
-  ],
-  "docs": []
+    { "name": "folder", "params": {} },
+    { "name": "codebase", "params": {} },
+    { "name": "diff", "params": {} },
+    { "name": "open", "params": {} }
+  ]
 }
 """
 

@@ -158,30 +158,30 @@ const Layout = () => {
     [],
   );
 
-  useWebviewListener(
-    "openOnboardingCard",
-    async () => {
-      onboardingCard.open("Best");
-    },
-    [],
-  );
+  // useWebviewListener(
+  //   "openOnboardingCard",
+  //   async () => {
+  //     onboardingCard.open("Best");
+  //   },
+  //   [],
+  // );
 
-  useWebviewListener(
-    "setupLocalConfig",
-    async () => {
-      onboardingCard.open("Local");
-    },
-    [],
-  );
+  // useWebviewListener(
+  //   "setupLocalConfig",
+  //   async () => {
+  //     onboardingCard.open("Local");
+  //   },
+  //   [],
+  // );
 
-  useEffect(() => {
-    if (
-      isNewUserOnboarding() &&
-      (location.pathname === "/" || location.pathname === "/index.html")
-    ) {
-      onboardingCard.open("Quickstart");
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (
+  //     isNewUserOnboarding() &&
+  //     (location.pathname === "/" || location.pathname === "/index.html")
+  //   ) {
+  //     onboardingCard.open("Local");
+  //   }
+  // }, [location]);
 
   return (
     <LastSessionProvider>
