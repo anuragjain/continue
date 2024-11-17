@@ -244,7 +244,7 @@ class ContinueExtensionConfigurable : Configurable {
     }
 
     override fun getDisplayName(): String {
-        return "Continue Extension Settings"
+        return "Jarvis Extension Settings"
     }
 }
 

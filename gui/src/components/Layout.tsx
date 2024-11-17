@@ -163,13 +163,13 @@ const Layout = () => {
     [],
   );
 
-  useWebviewListener(
-    "openOnboardingCard",
-    async () => {
-      onboardingCard.open("Best");
-    },
-    [],
-  );
+  // useWebviewListener(
+  //   "openOnboardingCard",
+  //   async () => {
+  //     onboardingCard.open("Best");
+  //   },
+  //   [],
+  // );
 
   useWebviewListener(
     "setupLocalConfig",
@@ -197,14 +197,14 @@ const Layout = () => {
     navigate("/");
   });
 
-  useEffect(() => {
-    if (
-      isNewUserOnboarding() &&
-      (location.pathname === "/" || location.pathname === "/index.html")
-    ) {
-      onboardingCard.open("Quickstart");
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (
+  //     isNewUserOnboarding() &&
+  //     (location.pathname === "/" || location.pathname === "/index.html")
+  //   ) {
+  //     onboardingCard.open("Quickstart");
+  //   }
+  // }, [location]);
 
   return (
     <LastSessionProvider>

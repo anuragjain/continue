@@ -80,7 +80,7 @@ function Footer() {
         <HeaderButtonWithToolTip
           tooltipPlacement="top-end"
           onClick={onClickSettings}
-          text="Configure Continue"
+          text="Configure Jarvis"
         >
           <Cog6ToothIcon className="h-4 w-4" />
         </HeaderButtonWithToolTip>
