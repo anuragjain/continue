@@ -25,11 +25,9 @@ import {
   vscBackground,
 } from "../../components";
 import { ChatScrollAnchor } from "../../components/ChatScrollAnchor";
-import { useFindWidget } from "../../components/find/FindWidget";
-import StepContainer from "../../components/gui/StepContainer";
+import StepContainer from "../../components/StepContainer";
 import TimelineItem from "../../components/gui/TimelineItem";
 import ContinueInputBox from "../../components/mainInput/ContinueInputBox";
-import { defaultInputModifiers } from "../../components/mainInput/inputModifiers";
 import { NewSessionButton } from "../../components/mainInput/NewSessionButton";
 import { TutorialCard } from "../../components/mainInput/TutorialCard";
 import {
@@ -43,8 +41,7 @@ import { useTutorialCard } from "../../hooks/useTutorialCard";
 import { useWebviewListener } from "../../hooks/useWebviewListener";
 import { defaultModelSelector } from "../../redux/selectors/modelSelectors";
 import {
-  clearLastResponse,
-  deleteMessage,
+  clearLastEmptyResponse,
   newSession,
   setInactive,
 } from "../../redux/slices/stateSlice";
@@ -57,11 +54,13 @@ import { RootState } from "../../redux/store";
 import {
   getFontSize,
   getMetaKeyLabel,
-  isJetBrains,
   isMetaEquivalentKeyPressed,
 } from "../../util";
 import { FREE_TRIAL_LIMIT_REQUESTS } from "../../util/freeTrial";
 import { getLocalStorage, setLocalStorage } from "../../util/localStorage";
+import ConfigErrorIndicator from "./ConfigError";
+import ChatIndexingPeeks from "../../components/indexing/ChatIndexingPeeks";
+import { useFindWidget } from "../../components/find/FindWidget";
 
 const StopButton = styled.div`
   background-color: ${vscBackground};
@@ -319,7 +318,7 @@ export function Chat() {
       {widget}
       <StepsDiv
         ref={stepsDivRef}
-        className={`overflow-y-scroll pt-[8px] ${showScrollbar ? "thin-scrollbar" : "no-scrollbar"} ${state.history.length > 0 ? "h-full" : ""}`}
+        className={`overflow-y-scroll pt-[8px] ${showScrollbar ? "thin-scrollbar" : "no-scrollbar"} ${state.history.length > 0 ? "flex-1" : ""}`}
         onScroll={handleScroll}
       >
         {highlights}
@@ -370,41 +369,7 @@ export function Chat() {
                     <StepContainer
                       index={index}
                       isLast={index === state.history.length - 1}
-                      isFirst={index === 0}
-                      open={
-                        typeof stepsOpen[index] === "undefined"
-                          ? true
-                          : stepsOpen[index]!
-                      }
-                      key={index}
-                      onUserInput={(input: string) => {}}
                       item={item}
-                      onReverse={() => {}}
-                      onRetry={() => {
-                        streamResponse(
-                          state.history[index - 1].editorState,
-                          state.history[index - 1].modifiers ??
-                            defaultInputModifiers,
-                          ideMessenger,
-                          index - 1,
-                        );
-                      }}
-                      onContinueGeneration={() => {
-                        window.postMessage(
-                          {
-                            messageType: "userInput",
-                            data: {
-                              input:
-                                "Continue your response exactly where you left off:",
-                            },
-                          },
-                          "*",
-                        );
-                      }}
-                      onDelete={() => {
-                        dispatch(deleteMessage(index));
-                      }}
-                      modelTitle={item.promptLogs?.[0]?.modelTitle ?? ""}
                     />
                   </TimelineItem>
                 </div>
@@ -435,12 +400,7 @@ export function Chat() {
             <StopButton
               onClick={() => {
                 dispatch(setInactive());
-                if (
-                  state.history[state.history.length - 1]?.message.content
-                    .length === 0
-                ) {
-                  dispatch(clearLastResponse());
-                }
+                dispatch(clearLastEmptyResponse());
               }}
             >
               {getMetaKeyLabel()} ⌫ Cancel
@@ -459,37 +419,29 @@ export function Chat() {
             pointerEvents: active ? "none" : "auto",
           }}
         >
-          {state.history.length > 0 ? (
-            <div className="xs:inline mt-2 hidden">
-              <NewSessionButton
-                onClick={() => {
-                  saveSession();
-                }}
-                className="mr-auto"
-              >
-                <span className="xs:inline hidden">
-                  New Session ({getMetaKeyLabel()} {isJetBrains() ? "J" : "L"})
-                </span>
-              </NewSessionButton>
-            </div>
-          ) : (
-            <>
-              {getLastSessionId() ? (
-                <div className="xs:inline mt-2 hidden">
+          <div className="flex flex-row items-center justify-between pb-1 pl-0.5 pr-2">
+            <div className="xs:inline hidden">
+              {state.history.length === 0 && getLastSessionId() ? (
+                <div className="xs:inline hidden">
                   <NewSessionButton
                     onClick={async () => {
                       loadLastSession().catch((e) =>
                         console.error(`Failed to load last session: ${e}`),
                       );
                     }}
-                    className="mr-auto flex items-center gap-2"
+                    className="flex items-center gap-2"
                   >
                     <ArrowLeftIcon className="h-3 w-3" />
                     Last Session
                   </NewSessionButton>
                 </div>
               ) : null}
+            </div>
+            <ConfigErrorIndicator />
+          </div>
 
+          {state.history.length === 0 && (
+            <>
               {onboardingCard.show && (
                 <div className="mx-2 mt-10">
                   <OnboardingCard activeTab={onboardingCard.activeTab} />
@@ -504,6 +456,11 @@ export function Chat() {
             </>
           )}
         </div>
+      </div>
+      <div
+        className={`${state.history.length === 0 ? "h-full" : ""} flex flex-col justify-end`}
+      >
+        <ChatIndexingPeeks />
       </div>
     </>
   );

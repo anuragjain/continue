@@ -1,8 +1,14 @@
-import { ToIdeFromWebviewOrCoreProtocol } from "./ide.js";
-import { ToWebviewFromIdeOrCoreProtocol } from "./webview.js";
+import { ToIdeFromWebviewOrCoreProtocol } from "./ide";
+import { ToWebviewFromIdeOrCoreProtocol } from "./webview";
 
-import type { RangeInFileWithContents } from "../commands/util.js";
-import type { ContextSubmenuItem, MessageContent } from "../index.js";
+import type {
+  ApplyState,
+  CodeToEdit,
+  ContextSubmenuItem,
+  EditStatus,
+  MessageContent,
+  RangeInFileWithContents,
+} from "../";
 
 export type ToIdeFromWebviewProtocol = ToIdeFromWebviewOrCoreProtocol & {
   onLoad: [
@@ -27,9 +33,9 @@ export type ToIdeFromWebviewProtocol = ToIdeFromWebviewOrCoreProtocol & {
     },
     void,
   ];
+  overwriteFile: [{ filepath: string; prevFileContent: string | null }, void];
   showTutorial: [undefined, void];
   showFile: [{ filepath: string }, void];
-  openConfigJson: [undefined, void];
   toggleDevTools: [undefined, void];
   reloadWindow: [undefined, void];
   focusEditor: [undefined, void];
@@ -40,8 +46,8 @@ export type ToIdeFromWebviewProtocol = ToIdeFromWebviewOrCoreProtocol & {
   "jetbrains/isOSREnabled": [undefined, void];
   "vscode/openMoveRightMarkdown": [undefined, void];
   setGitHubAuthToken: [{ token: string }, void];
-  acceptDiff: [{ filepath: string }, void];
-  rejectDiff: [{ filepath: string }, void];
+  acceptDiff: [{ filepath: string; streamId?: string }, void];
+  rejectDiff: [{ filepath: string; streamId?: string }, void];
   "edit/sendPrompt": [
     { prompt: MessageContent; range: RangeInFileWithContents },
     void,
@@ -52,24 +58,6 @@ export type ToIdeFromWebviewProtocol = ToIdeFromWebviewOrCoreProtocol & {
   ];
   "edit/escape": [undefined, void];
 };
-
-export interface EditModeArgs {
-  highlightedCode: RangeInFileWithContents;
-}
-
-export type EditStatus =
-  | "not-started"
-  | "streaming"
-  | "accepting"
-  | "accepting:full-diff"
-  | "done";
-
-export interface ApplyState {
-  streamId: string;
-  status?: "streaming" | "done" | "closed";
-  numDiffs?: number;
-  filepath?: string;
-}
 
 export type ToWebviewFromIdeProtocol = ToWebviewFromIdeOrCoreProtocol & {
   setInactive: [undefined, void];
@@ -91,10 +79,10 @@ export type ToWebviewFromIdeProtocol = ToWebviewFromIdeOrCoreProtocol & {
     },
     void,
   ];
+  addCodeToEdit: [CodeToEdit, void];
   navigateTo: [{ path: string; toggle?: boolean }, void];
   addModel: [undefined, void];
 
-  openSettings: [undefined, void];
   /**
    * @deprecated Use navigateTo with a path instead.
    */
@@ -111,7 +99,8 @@ export type ToWebviewFromIdeProtocol = ToWebviewFromIdeOrCoreProtocol & {
   openOnboardingCard: [undefined, void];
   applyCodeFromChat: [undefined, void];
   updateApplyState: [ApplyState, void];
-  startEditMode: [EditModeArgs, void];
   setEditStatus: [{ status: EditStatus; fileAfterEdit?: string }, void];
   exitEditMode: [undefined, void];
+  focusEdit: [undefined, void];
+  focusEditWithoutClear: [undefined, void];
 };

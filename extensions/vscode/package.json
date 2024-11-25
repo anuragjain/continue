@@ -2,7 +2,7 @@
   "name": "continue",
   "icon": "media/icon.png",
   "author": "Continue Dev, Inc",
-  "version": "1.100.1",
+  "version": "1.100.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/continuedev/continue"
@@ -200,12 +200,6 @@
         "group": "Jarvis"
       },
       {
-        "command": "continue.edit",
-        "category": "Continue",
-        "title": "Edit code with natural language",
-        "group": "Continue"
-      },
-      {
         "command": "continue.exitEditMode",
         "category": "Continue",
         "title": "Exit Edit Mode",
@@ -219,9 +213,10 @@
         "group": "Jarvis"
       },
       {
-        "command": "continue.openConfigJson",
+        "command": "continue.openConfig",
         "category": "Jarvis",
-        "title": "Open config.json",
+        "title": "Open Jarvis Config",
+        "icon": "$(gear)",
         "group": "Jarvis"
       },
       {
@@ -251,10 +246,23 @@
         "group": "Jarvis"
       },
       {
+        "command": "continue.viewLogs",
+        "category": "Continue",
+        "title": "View History",
+        "group": "Continue"
+      },
+      {
         "command": "continue.navigateTo",
         "category": "Jarvis",
         "title": "Navigate to a path",
         "group": "Jarvis"
+      },
+      {
+        "command": "continue.openMorePage",
+        "category": "Continue",
+        "title": "More",
+        "icon": "$(ellipsis)",
+        "group": "Continue"
       },
       {
         "command": "continue.writeCommentsForCode",
@@ -315,6 +323,20 @@
         "category": "Jarvis",
         "title": "Focus Continue Chat",
         "group": "Jarvis"
+      },
+      {
+        "command": "continue.signInToControlPlane",
+        "title": "Sign In",
+        "category": "Jarvis",
+        "group": "Jarvis",
+        "icon": "$(account)"
+      },
+      {
+        "command": "continue.openAccountDialog",
+        "title": "Account",
+        "category": "Jarvis",
+        "group": "Jarvis",
+        "icon": "$(account)"
       }
     ],
     "keybindings": [
@@ -369,14 +391,15 @@
         "key": "alt+ctrl+n"
       },
       {
-        "command": "continue.quickEdit",
-        "mac": "cmd+shift+i",
-        "key": "ctrl+shift+i"
-      },
-      {
-        "command": "continue.edit",
+        "command": "continue.focusEdit",
+        "title": "Edit code with natural language",
         "mac": "cmd+i",
         "key": "ctrl+i"
+      },
+      {
+        "command": "continue.focusEditWithoutClear",
+        "mac": "cmd+shift+i",
+        "key": "ctrl+shift+i"
       },
       {
         "command": "continue.exitEditMode",
@@ -415,9 +438,6 @@
     ],
     "menus": {
       "commandPalette": [
-        {
-          "command": "continue.quickEdit"
-        },
         {
           "command": "continue.focusContinueInput"
         },
@@ -499,6 +519,26 @@
         {
           "command": "continue.toggleFullScreen",
           "group": "navigation@3",
+          "when": "view == continue.continueGUIView"
+        },
+        {
+          "command": "continue.openConfig",
+          "group": "navigation@4",
+          "when": "view == continue.continueGUIView"
+        },
+        {
+          "command": "continue.signInToControlPlane",
+          "group": "navigation@5",
+          "when": "(view == continue.continueGUIView) && config.continue.enableContinueForTeams && !continue.isSignedInToControlPlane"
+        },
+        {
+          "command": "continue.openAccountDialog",
+          "group": "navigation@5",
+          "when": "(view == continue.continueGUIView) && config.continue.enableContinueForTeams && continue.isSignedInToControlPlane"
+        },
+        {
+          "command": "continue.openMorePage",
+          "group": "navigation@6",
           "when": "view == continue.continueGUIView"
         }
       ],
