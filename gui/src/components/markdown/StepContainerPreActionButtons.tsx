@@ -8,15 +8,15 @@ import {
 import { defaultBorderRadius, vscEditorBackground } from "..";
 import { IdeMessengerContext } from "../../context/IdeMessenger";
 import { isJetBrains } from "../../util";
-import { isTerminalCodeBlock } from "./utils";
+import { isTerminalCodeBlock, getTerminalCommand } from "./utils";
 import HeaderButtonWithToolTip from "../gui/HeaderButtonWithToolTip";
 import { CopyIconButton } from "../gui/CopyIconButton";
 import useUIConfig from "../../hooks/useUIConfig";
 import { v4 as uuidv4 } from "uuid";
-import { useApplyCodeBlock } from "./utils/useApplyCodeBlock";
 import { useWebviewListener } from "../../hooks/useWebviewListener";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { defaultModelSelector } from "../../redux/selectors/modelSelectors";
 
 const TopDiv = styled.div`
   outline: 0.5px solid rgba(153, 153, 152);
@@ -66,12 +66,8 @@ export default function StepContainerPreActionButtons({
   const uiConfig = useUIConfig();
   const streamIdRef = useRef<string | null>(null);
   const nextCodeBlockIndex = useSelector(
-    (state: RootState) => state.uiState.nextCodeBlockToApplyIndex,
+    (state: RootState) => state.state.nextCodeBlockToApplyIndex,
   );
-  const onClickApply = useApplyCodeBlock({
-    codeBlockContent,
-    streamId: streamIdRef.current,
-  });
 
   const isBottomToolbarPosition =
     uiConfig?.codeBlockToolbarPosition == "bottom";
@@ -83,10 +79,25 @@ export default function StepContainerPreActionButtons({
     streamIdRef.current = uuidv4();
   }
 
+  const defaultModel = useSelector(defaultModelSelector);
+  function onClickApply() {
+    ideMessenger.post("applyToFile", {
+      streamId: streamIdRef.current,
+      text: codeBlockContent,
+      curSelectedModelTitle: defaultModel.title,
+    });
+  }
+
+  async function onClickRunTerminal(): Promise<void> {
+    if (shouldRunTerminalCmd) {
+      return ideMessenger.ide.runCommand(getTerminalCommand(codeBlockContent));
+    }
+  }
+
   // Handle apply keyboard shortcut
   useWebviewListener(
     "applyCodeFromChat",
-    onClickApply,
+    async () => onClickApply(),
     [isNextCodeBlock, codeBlockContent],
     !isNextCodeBlock,
   );
@@ -115,7 +126,7 @@ export default function StepContainerPreActionButtons({
             <HeaderButtonWithToolTip
               text="Run in terminal"
               style={{ backgroundColor: vscEditorBackground }}
-              onClick={onClickApply}
+              onClick={onClickRunTerminal}
             >
               <CommandLineIcon className="h-4 w-4 text-gray-400" />
             </HeaderButtonWithToolTip>

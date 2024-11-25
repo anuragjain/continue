@@ -836,7 +836,8 @@ declare global {
     slidingWindowPrefixPercentage: number;
     slidingWindowSize: number;
     maxSnippetPercentage: number;
-    recentlyEditedSimilarityThreshold: number;
+    maxDiffPercentage: number;
+    maxClipboardPercentage: number;
     useCache: boolean;
     onlyMyCode: boolean;
     useOtherFiles: boolean;
