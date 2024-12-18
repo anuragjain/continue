@@ -2,7 +2,7 @@
   "name": "continue",
   "icon": "media/icon.png",
   "author": "Continue Dev, Inc",
-  "version": "0.9.246",
+  "version": "1.100.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/continuedev/continue"
@@ -18,7 +18,7 @@
   "homepage": "https://continue.dev",
   "qna": "https://github.com/continuedev/continue/issues/new/choose",
   "license": "Apache-2.0",
-  "displayName": "Continue - Codestral, Claude, and more",
+  "displayName": "Jarvis - Codestral, Claude, and more",
   "pricing": "Free",
   "description": "The leading open-source AI code assistant",
   "publisher": "Continue",
@@ -90,7 +90,7 @@
       }
     ],
     "configuration": {
-      "title": "Continue",
+      "title": "Jarvis",
       "properties": {
         "continue.telemetryEnabled": {
           "type": "boolean",
@@ -152,58 +152,58 @@
     "commands": [
       {
         "command": "continue.applyCodeFromChat",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Apply code from chat",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.acceptDiff",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Accept Diff",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.rejectDiff",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Reject Diff",
-        "group": "Continue",
+        "group": "Jarvis",
         "icon": "$(stop)"
       },
       {
         "command": "continue.acceptVerticalDiffBlock",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Accept Vertical Diff Block",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.rejectVerticalDiffBlock",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Reject Vertical Diff Block",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.focusEdit",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Generate Code",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.focusContinueInput",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Add Highlighted Code to Context and Clear Chat",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.focusContinueInputWithoutClear",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Add Highlighted Code to Context",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.debugTerminal",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Debug Terminal",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.exitEditMode",
@@ -213,43 +213,43 @@
       },
       {
         "command": "continue.toggleFullScreen",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Toggle Full Screen",
         "icon": "$(fullscreen)",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.openConfig",
-        "category": "Continue",
-        "title": "Open Continue Config",
+        "category": "Jarvis",
+        "title": "Open Jarvis Config",
         "icon": "$(gear)",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.toggleTabAutocompleteEnabled",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Toggle Autocomplete Enabled",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.selectFilesAsContext",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Select Files as Context",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.newSession",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "New Session",
         "icon": "$(add)",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.viewHistory",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "View History",
         "icon": "$(history)",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.viewLogs",
@@ -259,9 +259,9 @@
       },
       {
         "command": "continue.navigateTo",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Navigate to a path",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.openMorePage",
@@ -272,76 +272,76 @@
       },
       {
         "command": "continue.writeCommentsForCode",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Write Comments for this Code",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.writeDocstringForCode",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Write a Docstring for this Code",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.fixCode",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Fix this Code",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.optimizeCode",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Optimize this Code",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.fixGrammar",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Fix Grammar / Spelling",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.codebaseForceReIndex",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Codebase Force Re-Index",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.rebuildCodebaseIndex",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Rebuild codebase index",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.docsIndex",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Docs Index",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.docsReIndex",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Docs Force Re-Index",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.focusContinueSessionId",
-        "category": "Continue",
+        "category": "Jarvis",
         "title": "Focus Continue Chat",
-        "group": "Continue"
+        "group": "Jarvis"
       },
       {
         "command": "continue.signInToControlPlane",
         "title": "Sign In",
-        "category": "Continue",
-        "group": "Continue",
+        "category": "Jarvis",
+        "group": "Jarvis",
         "icon": "$(account)"
       },
       {
         "command": "continue.openAccountDialog",
         "title": "Account",
-        "category": "Continue",
-        "group": "Continue",
+        "category": "Jarvis",
+        "group": "Jarvis",
         "icon": "$(account)"
       }
     ],
@@ -439,7 +439,7 @@
     "submenus": [
       {
         "id": "continue.continueSubMenu",
-        "label": "Continue"
+        "label": "Jarvis"
       }
     ],
     "menus": {
@@ -469,39 +469,39 @@
       "editor/title/run": [
         {
           "command": "continue.rejectDiff",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "continue.streamingDiff"
         }
       ],
       "continue.continueSubMenu": [
         {
           "command": "continue.focusContinueInputWithoutClear",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection"
         },
         {
           "command": "continue.writeCommentsForCode",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection"
         },
         {
           "command": "continue.writeDocstringForCode",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection"
         },
         {
           "command": "continue.fixCode",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection"
         },
         {
           "command": "continue.optimizeCode",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection"
         },
         {
           "command": "continue.fixGrammar",
-          "group": "Continue",
+          "group": "Jarvis",
           "when": "editorHasSelection && editorLangId == 'markdown'"
         }
       ],
@@ -571,7 +571,7 @@
       "activitybar": [
         {
           "id": "continue",
-          "title": "Continue",
+          "title": "Jarvis",
           "icon": "media/sidebar-icon.png"
         }
       ]

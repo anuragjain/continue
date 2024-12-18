@@ -45,7 +45,7 @@ function MorePage() {
           <div className="flex flex-col gap-5">
             <MoreHelpRow
               title="Documentation"
-              description="Learn how to configure and use Continue"
+              description="Learn how to configure and use Jarvis"
               Icon={ArrowTopRightOnSquareIcon}
               onClick={() =>
                 ideMessenger.post("openUrl", "https://docs.continue.dev/")

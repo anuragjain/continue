@@ -14,17 +14,19 @@ const val DEFAULT_CONFIG =
 {
   "models": [
     {
-      "model": "claude-3-5-sonnet-latest",
-      "provider": "anthropic",
-      "apiKey": "",
-      "title": "Claude 3.5 Sonnet"
+      "title": "Jarvis Go",
+      "model": "sammcj/llama-3-1-8b-smcleod-golang-coder-v3:Q8_0",
+      "provider": "ollama",
+      "apiBase": "http://localhost:11434",
+      "contextLength": 8192
     }
   ],
   "tabAutocompleteModel": {
-    "title": "Codestral",
-    "provider": "mistral",
-    "model": "codestral-latest",
-    "apiKey": "" 
+    "title": "Jarvis Go",
+    "model": "sammcj/llama-3-1-8b-smcleod-golang-coder-v3:Q8_0",
+    "provider": "ollama",
+    "apiBase": "http://localhost:11434",
+    "contextLength": 8192
   },
   "customCommands": [
     {
@@ -45,16 +47,24 @@ const val DEFAULT_CONFIG =
     {
       "name": "codebase",
       "params": {}
+    },
+    {
+      "name": "open",
+      "params": {}
     }
   ],
   "slashCommands": [
     {
-      "name": "share",
-      "description": "Export the current chat session to markdown"
+      "name": "edit",
+      "description": "Edit selected code"
     },
     {
-      "name": "commit",
-      "description": "Generate a git commit message"
+      "name": "comment",
+      "description": "Write comments for the selected code"
+    },
+    {
+      "name": "review",
+      "description": "Review my code"
     }
   ],
   "docs": []
