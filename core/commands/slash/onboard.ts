@@ -9,7 +9,7 @@ import {
   defaultIgnoreFile,
   gitIgArrayFromFile,
 } from "../../indexing/ignore";
-import { stripImages } from "../../llm/images";
+import { renderChatMessage } from "../../util/messageContent";
 
 const LANGUAGE_DEP_MGMT_FILENAMES = [
   "package.json", // JavaScript (Node.js)
@@ -45,10 +45,11 @@ const OnboardSlashCommand: SlashCommand = {
     const context = await gatherProjectContext(workspaceDir, ide);
     const prompt = createOnboardingPrompt(context);
 
-    for await (const chunk of llm.streamChat([
-      { role: "user", content: prompt },
-    ], new AbortController().signal)) {
-      yield stripImages(chunk.content);
+    for await (const chunk of llm.streamChat(
+      [{ role: "user", content: prompt }],
+      new AbortController().signal,
+    )) {
+      yield renderChatMessage(chunk);
     }
   },
 };
@@ -72,7 +73,10 @@ async function getEntriesFilteredByIgnore(dir: string, ide: IDE) {
     ig = ig.add(igPatterns);
   }
 
-  const filteredEntries = entries.filter((entry) => !ig.ignores(entry.name));
+  const filteredEntries = entries.filter((entry) => {
+    const name = entry.isDirectory() ? `${entry.name}/` : entry.name;
+    return !ig.ignores(name);
+  });
 
   return filteredEntries;
 }
@@ -116,7 +120,7 @@ async function gatherProjectContext(
 
 function createOnboardingPrompt(context: string): string {
   return `
-    As a helpful AI assistant, your task is to onboard a new developer to this project. 
+    As a helpful AI assistant, your task is to onboard a new developer to this project.
     Use the following context about the project structure, READMEs, and dependency files to create a comprehensive overview:
 
     ${context}
