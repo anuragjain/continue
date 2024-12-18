@@ -93,19 +93,44 @@ function addCodeToContextFromRange(
   });
 }
 
-function getCurrentlyHighlightedCode(
+function getRangeInFileWithContents(
   allowEmpty?: boolean,
+  range?: vscode.Range,
 ): RangeInFileWithContents | null {
   const editor = vscode.window.activeTextEditor;
+
   if (editor) {
     const selection = editor.selection;
+    const filepath = editor.document.uri.fsPath;
+
+    if (range) {
+      const contents = editor.document.getText(range);
+
+      return {
+        range: {
+          start: {
+            line: range.start.line,
+            character: range.start.character,
+          },
+          end: {
+            line: range.end.line,
+            character: range.end.character,
+          },
+        },
+        filepath,
+        contents,
+      };
+    }
+
     if (selection.isEmpty && !allowEmpty) {
       return null;
     }
+
     // adjust starting position to include indentation
     const start = new vscode.Position(selection.start.line, 0);
-    const range = new vscode.Range(start, selection.end);
-    const contents = editor.document.getText(range);
+    const selectionRange = new vscode.Range(start, selection.end);
+    const contents = editor.document.getText(selectionRange);
+
     return {
       filepath: editor.document.uri.fsPath,
       contents,
@@ -121,13 +146,14 @@ function getCurrentlyHighlightedCode(
       },
     };
   }
+
   return null;
 }
 
 async function addHighlightedCodeToContext(
   webviewProtocol: VsCodeWebviewProtocol | undefined,
 ) {
-  const rangeInFileWithContents = getCurrentlyHighlightedCode();
+  const rangeInFileWithContents = getRangeInFileWithContents();
   if (rangeInFileWithContents) {
     webviewProtocol?.request("highlightedCode", {
       rangeInFileWithContents,
@@ -258,6 +284,28 @@ async function processDiff(
   }
 }
 
+function waitForSidebarReady(
+  sidebar: ContinueGUIWebviewViewProvider,
+  timeout: number,
+  interval: number,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+
+    const checkReadyState = () => {
+      if (sidebar.isReady) {
+        resolve(true);
+      } else if (Date.now() - startTime >= timeout) {
+        resolve(false); // Timed out
+      } else {
+        setTimeout(checkReadyState, interval);
+      }
+    };
+
+    checkReadyState();
+  });
+}
+
 // Copy everything over from extension.ts
 const getCommandsMap: (
   ide: VsCodeIde,
@@ -375,7 +423,7 @@ const getCommandsMap: (
     // Passthrough for telemetry purposes
     "continue.defaultQuickAction": async (args: QuickEditShowParams) => {
       captureCommandTelemetry("defaultQuickAction");
-      vscode.commands.executeCommand("continue.quickEdit", args);
+      vscode.commands.executeCommand("continue.focusEdit", args);
     },
     "continue.customQuickActionSendToChat": async (
       prompt: string,
@@ -411,18 +459,23 @@ const getCommandsMap: (
       // This is a temporary fix—sidebar.webviewProtocol.request is blocking
       // when the GUI hasn't yet been setup and we should instead be
       // immediately throwing an error, or returning a Result object
+      focusGUI();
       if (!sidebar.isReady) {
-        focusGUI();
-        return;
+        const isReady = await waitForSidebarReady(sidebar, 5000, 100);
+        if (!isReady) {
+          return;
+        }
       }
 
       const historyLength = await sidebar.webviewProtocol.request(
         "getWebviewHistoryLength",
         undefined,
+        false,
       );
       const isContinueInputFocused = await sidebar.webviewProtocol.request(
         "isContinueInputFocused",
         undefined,
+        false,
       );
 
       if (isContinueInputFocused) {
@@ -430,13 +483,18 @@ const getCommandsMap: (
           hideGUI();
         } else {
           void sidebar.webviewProtocol?.request(
-            "focusContinueInput",
+            "focusContinueInputWithNewSession",
             undefined,
+            false,
           );
         }
       } else {
         focusGUI();
-        sidebar.webviewProtocol?.request("focusContinueInput", undefined);
+        sidebar.webviewProtocol?.request(
+          "focusContinueInputWithNewSession",
+          undefined,
+          false,
+        );
         void addHighlightedCodeToContext(sidebar.webviewProtocol);
       }
     },
@@ -467,7 +525,9 @@ const getCommandsMap: (
         void addHighlightedCodeToContext(sidebar.webviewProtocol);
       }
     },
-    "continue.focusEdit": async () => {
+    // QuickEditShowParams are passed from CodeLens, temp fix
+    // until we update to new params specific to Edit
+    "continue.focusEdit": async (args?: QuickEditShowParams) => {
       captureCommandTelemetry("focusEdit");
       focusGUI();
 
@@ -489,12 +549,13 @@ const getCommandsMap: (
         return;
       }
 
-      editDecorationManager.setDecoration(
-        editor,
-        new vscode.Range(editor.selection.start, editor.selection.end),
-      );
+      const range =
+        args?.range ??
+        new vscode.Range(editor.selection.start, editor.selection.end);
 
-      const rangeInFileWithContents = getCurrentlyHighlightedCode(true);
+      editDecorationManager.setDecoration(editor, range);
+
+      const rangeInFileWithContents = getRangeInFileWithContents(true, range);
 
       if (rangeInFileWithContents) {
         sidebar.webviewProtocol?.request(
@@ -508,10 +569,6 @@ const getCommandsMap: (
           editor.selection.anchor,
         );
       }
-
-      setTimeout(() => {
-        sidebar.webviewProtocol?.request("focusContinueInput", undefined);
-      }, 30);
     },
     "continue.focusEditWithoutClear": async () => {
       captureCommandTelemetry("focusEditWithoutClear");
@@ -537,7 +594,7 @@ const getCommandsMap: (
         return;
       }
 
-      const rangeInFileWithContents = getCurrentlyHighlightedCode(false);
+      const rangeInFileWithContents = getRangeInFileWithContents(false);
 
       if (rangeInFileWithContents) {
         sidebar.webviewProtocol?.request(
@@ -553,25 +610,22 @@ const getCommandsMap: (
           contents,
         });
       }
-
-      setTimeout(() => {
-        sidebar.webviewProtocol?.request("focusContinueInput", undefined);
-      }, 30);
     },
     "continue.exitEditMode": async () => {
       captureCommandTelemetry("exitEditMode");
-      await sidebar.webviewProtocol?.request("exitEditMode", undefined);
+      editDecorationManager.clear();
+      void sidebar.webviewProtocol?.request("exitEditMode", undefined);
     },
-    "continue.quickEdit": async (args: QuickEditShowParams) => {
-      let linesOfCode = undefined;
-      if (args.range) {
-        linesOfCode = args.range.end.line - args.range.start.line;
-      }
-      captureCommandTelemetry("quickEdit", {
-        linesOfCode,
-      });
-      quickEdit.show(args);
-    },
+    // "continue.quickEdit": async (args: QuickEditShowParams) => {
+    //   let linesOfCode = undefined;
+    //   if (args.range) {
+    //     linesOfCode = args.range.end.line - args.range.start.line;
+    //   }
+    //   captureCommandTelemetry("quickEdit", {
+    //     linesOfCode,
+    //   });
+    //   quickEdit.show(args);
+    // },
     "continue.writeCommentsForCode": async () => {
       captureCommandTelemetry("writeCommentsForCode");
 
@@ -698,15 +752,17 @@ const getCommandsMap: (
     "continue.applyCodeFromChat": () => {
       void sidebar.webviewProtocol.request("applyCodeFromChat", undefined);
     },
-    "continue.toggleFullScreen": () => {
+    "continue.toggleFullScreen": async () => {
       focusGUI();
 
+      const sessionId = await sidebar.webviewProtocol.request("getCurrentSessionId", undefined);
       // Check if full screen is already open by checking open tabs
       const fullScreenTab = getFullScreenTab();
 
       if (fullScreenTab && fullScreenPanel) {
         // Full screen open, but not focused - focus it
         fullScreenPanel.reveal();
+        vscode.commands.executeCommand("continue.focusContinueInput");
         return;
       }
 
@@ -720,6 +776,7 @@ const getCommandsMap: (
         vscode.ViewColumn.One,
         {
           retainContextWhenHidden: true,
+          enableScripts: true,
         },
       );
       fullScreenPanel = panel;
@@ -732,6 +789,13 @@ const getCommandsMap: (
         undefined,
         true,
       );
+      
+      panel.onDidChangeViewState(() => {
+        vscode.commands.executeCommand("continue.newSession");
+        if(sessionId){
+          vscode.commands.executeCommand("continue.focusContinueSessionId", sessionId);
+        }
+      });
 
       // When panel closes, reset the webview and focus
       panel.onDidDispose(
@@ -744,6 +808,7 @@ const getCommandsMap: (
       );
 
       vscode.commands.executeCommand("workbench.action.copyEditorToNewWindow");
+      vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
     },
     "continue.openConfig": () => {
       core.invoke("config/openProfile", {

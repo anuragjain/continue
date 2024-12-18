@@ -4,6 +4,7 @@ import type {
   ContextItemWithId,
   IndexingProgressUpdate,
   IndexingStatus,
+  PackageDocsResult,
 } from "../index.js";
 
 export type ToWebviewFromIdeOrCoreProtocol = {
@@ -23,6 +24,8 @@ export type ToWebviewFromIdeOrCoreProtocol = {
   ];
   setTTSActive: [boolean, void];
   getWebviewHistoryLength: [undefined, number];
+  getCurrentSessionId: [undefined, string];
   signInToControlPlane: [undefined, void];
   openDialogMessage: ["account", void];
+  "docs/suggestions": [PackageDocsResult[], void];
 };
