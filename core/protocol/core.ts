@@ -6,6 +6,7 @@ import type {
   ChatMessage,
   ContextItem,
   ContextItemWithId,
+  ContextProviderWithParams,
   ContextSubmenuItem,
   DiffLine,
   FileSymbolMap,
@@ -20,6 +21,7 @@ import type {
   SiteIndexingConfig,
   ToolCall,
 } from "../";
+import { ConfigResult } from "../config/load";
 
 export type ProtocolGeneratorType<T> = AsyncGenerator<{
   done?: boolean;
@@ -63,10 +65,14 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   "config/ideSettingsUpdate": [IdeSettings, void];
   "config/getSerializedProfileInfo": [
     undefined,
-    { config: BrowserSerializedContinueConfig; profileId: string },
+    {
+      result: ConfigResult<BrowserSerializedContinueConfig>;
+      profileId: string;
+    },
   ];
   "config/deleteModel": [{ title: string }, void];
-  "config/reload": [undefined, BrowserSerializedContinueConfig];
+  "config/addContextProvider": [ContextProviderWithParams, void];
+  "config/reload": [undefined, ConfigResult<BrowserSerializedContinueConfig>];
   "config/listProfiles": [undefined, ProfileDescription[]];
   "config/openProfile": [{ profileId: string | undefined }, void];
   "context/getContextItems": [
@@ -159,7 +165,6 @@ export type ToCoreFromIdeOrWebviewProtocol = {
     undefined | { dirs?: string[]; shouldClearIndexes?: boolean },
     void,
   ];
-  "index/forceReIndexFiles": [undefined | { files?: string[] }, void];
   "index/indexingProgressBarInitialized": [undefined, void];
   completeOnboarding: [
     {
@@ -167,6 +172,12 @@ export type ToCoreFromIdeOrWebviewProtocol = {
     },
     void,
   ];
+
+  // File changes
+  "files/changed": [{ uris?: string[] }, void];
+  "files/opened": [{ uris?: string[] }, void];
+  "files/created": [{ uris?: string[] }, void];
+  "files/deleted": [{ uris?: string[] }, void];
 
   // Docs etc. Indexing. TODO move codebase to this
   "indexing/reindex": [{ type: string; id: string }, void];
