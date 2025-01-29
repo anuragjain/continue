@@ -18,16 +18,18 @@ import {
   PromptLog,
   Session,
   SessionMetadata,
-  ToolCall,
+  ToolCallDelta,
+  ToolCallState,
 } from "core";
+import { ProfileDescription } from "core/config/ConfigHandler";
 import { NEW_SESSION_TITLE } from "core/util/constants";
 import { incrementalParseJson } from "core/util/incrementalParseJson";
 import { renderChatMessage } from "core/util/messageContent";
+import { findUriInDirs, getUriPathBasename } from "core/util/uri";
 import { v4 as uuidv4 } from "uuid";
 import { RootState } from "../store";
 import { streamResponseThunk } from "../thunks/streamResponse";
 import { findCurrentToolCall } from "../util";
-import { findUriInDirs, getUriPathBasename } from "core/util/uri";
 
 // We need this to handle reorderings (e.g. a mid-array deletion) of the messages array.
 // The proper fix is adding a UUID to all chat messages, but this is the temp workaround.
@@ -43,6 +45,7 @@ type SessionState = {
   title: string;
   id: string;
   selectedProfileId: string;
+  availableProfiles: ProfileDescription[];
   streamAborter: AbortController;
   codeToEdit: CodeToEdit[];
   curCheckpointIndex: number;
@@ -82,6 +85,19 @@ const initialState: SessionState = {
   title: NEW_SESSION_TITLE,
   id: uuidv4(),
   selectedProfileId: "local",
+  availableProfiles: [
+    {
+      id: "local",
+      title: "Local",
+      errors: undefined,
+      profileType: "local",
+      fullSlug: {
+        ownerSlug: "",
+        packageSlug: "",
+        versionSlug: "",
+      },
+    },
+  ],
   curCheckpointIndex: 0,
   streamAborter: new AbortController(),
   codeToEdit: [],
@@ -116,7 +132,10 @@ export const sessionSlice = createSlice({
       state.isStreaming = true;
     },
     setIsGatheringContext: (state, { payload }: PayloadAction<boolean>) => {
-      state.history.at(-1).isGatheringContext = payload;
+      const curMessage = state.history.at(-1);
+      if (curMessage) {
+        curMessage.isGatheringContext = payload;
+      }
     },
     clearLastEmptyResponse: (state) => {
       if (state.history.length < 2) {
@@ -129,6 +148,8 @@ export const sessionSlice = createSlice({
         state.mainEditorContentTrigger =
           state.history[state.history.length - 2].editorState;
         state.history = state.history.slice(0, -2);
+        // TODO is this logic correct for tool use conversations?
+        // Maybe slice at last index of "user" role message?
       }
     },
     // Trigger value picked up by editor with isMainInput to set its content
@@ -278,72 +299,107 @@ export const sessionSlice = createSlice({
     },
     streamUpdate: (state, action: PayloadAction<ChatMessage[]>) => {
       if (state.history.length) {
-        for (const message of action.payload) {
-          const lastMessage = state.history[state.history.length - 1];
+        function toolCallDeltaToState(
+          toolCallDelta: ToolCallDelta,
+        ): ToolCallState {
+          const [_, parsedArgs] = incrementalParseJson(
+            toolCallDelta.function?.arguments ?? "{}",
+          );
+          return {
+            status: "generating",
+            toolCall: {
+              id: toolCallDelta.id ?? "",
+              type: toolCallDelta.type ?? "function",
+              function: {
+                name: toolCallDelta.function?.name ?? "",
+                arguments: toolCallDelta.function?.arguments ?? "",
+              },
+            },
+            toolCallId: toolCallDelta.id ?? "",
+            parsedArgs,
+          };
+        }
 
+        for (const message of action.payload) {
+          const lastItem = state.history[state.history.length - 1];
+          const lastMessage = lastItem.message;
           if (
-            message.role &&
-            (lastMessage.message.role !== message.role ||
-              // This is when a tool call comes after assistant text
-              (lastMessage.message.content !== "" &&
-                message.role === "assistant" &&
-                message.toolCalls?.length))
+            lastMessage.role !== message.role ||
+            // This is for when a tool call comes immediately before/after tool call
+            (lastMessage.role === "assistant" &&
+              message.role === "assistant" &&
+              // Last message isn't completely new
+              !(!lastMessage.toolCalls?.length && !lastMessage.content) &&
+              // And there's a difference in tool call presence
+              (lastMessage.toolCalls?.length ?? 0) !==
+                (message.toolCalls?.length ?? 0))
           ) {
             // Create a new message
             const historyItem: ChatHistoryItemWithMessageId = {
               message: {
                 ...message,
+                content: renderChatMessage(message),
                 id: uuidv4(),
               },
               contextItems: [],
             };
-
-            if (message.role === "assistant" && message.toolCalls) {
-              const [_, parsedArgs] = incrementalParseJson(
-                message.toolCalls[0].function.arguments,
-              );
-              historyItem.toolCallState = {
-                status: "generating",
-                toolCall: message.toolCalls[0] as ToolCall,
-                toolCallId: message.toolCalls[0].id,
-                parsedArgs,
-              };
+            if (message.role === "assistant" && message.toolCalls?.[0]) {
+              const toolCallDelta = message.toolCalls[0];
+              if (
+                toolCallDelta.id &&
+                toolCallDelta.function?.arguments &&
+                toolCallDelta.function?.name &&
+                toolCallDelta.type
+              ) {
+                console.warn(
+                  "Received streamed tool call without required fields",
+                  toolCallDelta,
+                );
+              }
+              historyItem.toolCallState = toolCallDeltaToState(toolCallDelta);
             }
-
             state.history.push(historyItem);
           } else {
             // Add to the existing message
-            const msg = state.history[state.history.length - 1].message;
             if (message.content) {
-              msg.content += renderChatMessage(message);
+              // Note this only works because new message above
+              // was already rendered from parts to string
+              lastMessage.content += renderChatMessage(message);
             } else if (
               message.role === "assistant" &&
-              message.toolCalls &&
-              msg.role === "assistant"
+              message.toolCalls?.[0] &&
+              lastMessage.role === "assistant"
             ) {
-              if (!msg.toolCalls) {
-                msg.toolCalls = [];
+              // Intentionally only supporting one tool call for now.
+              const toolCallDelta = message.toolCalls[0];
+
+              // Update message tool call with delta data
+              const newArgs =
+                (lastMessage.toolCalls?.[0]?.function?.arguments ?? "") +
+                (toolCallDelta.function?.arguments ?? "");
+              if (lastMessage.toolCalls?.[0]) {
+                lastMessage.toolCalls[0].function = {
+                  name:
+                    toolCallDelta.function?.name ??
+                    lastMessage.toolCalls[0].function?.name ??
+                    "",
+                  arguments: newArgs,
+                };
+              } else {
+                lastMessage.toolCalls = [toolCallDelta];
               }
-              message.toolCalls.forEach((toolCall, i) => {
-                if (msg.toolCalls.length <= i) {
-                  msg.toolCalls.push(toolCall);
-                } else {
-                  msg.toolCalls[i].function.arguments +=
-                    toolCall.function.arguments;
 
-                  const [_, parsedArgs] = incrementalParseJson(
-                    msg.toolCalls[i].function.arguments,
-                  );
+              // Update current tool call state
+              if (!lastItem.toolCallState) {
+                console.warn(
+                  "Received streamed tool call response prior to initial tool call delta",
+                );
+                lastItem.toolCallState = toolCallDeltaToState(toolCallDelta);
+              }
 
-                  state.history[
-                    state.history.length - 1
-                  ].toolCallState.parsedArgs = parsedArgs;
-                  state.history[
-                    state.history.length - 1
-                  ].toolCallState.toolCall.function.arguments +=
-                    toolCall.function.arguments;
-                }
-              });
+              const [_, parsedArgs] = incrementalParseJson(newArgs);
+              lastItem.toolCallState.parsedArgs = parsedArgs;
+              lastItem.toolCallState.toolCall.function.arguments = newArgs;
             }
           }
         }
@@ -465,15 +521,31 @@ export const sessionSlice = createSlice({
         selectedProfileId: payload,
       };
     },
-    setCurCheckpointIndex: (state, { payload }: PayloadAction<number>) => {
-      state.curCheckpointIndex = payload;
+    setAvailableProfiles: (
+      state,
+      { payload }: PayloadAction<ProfileDescription[]>,
+    ) => {
+      return {
+        ...state,
+        availableProfiles: payload,
+        selectedProfileId: payload.find(
+          (profile) => profile.id === state.selectedProfileId,
+        )
+          ? state.selectedProfileId
+          : payload[0]?.id,
+      };
     },
     updateCurCheckpoint: (
       state,
       { payload }: PayloadAction<{ filepath: string; content: string }>,
     ) => {
-      state.history[state.curCheckpointIndex].checkpoint[payload.filepath] =
-        payload.content;
+      const checkpoint = state.history[state.curCheckpointIndex].checkpoint;
+      if (checkpoint) {
+        checkpoint[payload.filepath] = payload.content;
+      }
+    },
+    setCurCheckpointIndex: (state, { payload }: PayloadAction<number>) => {
+      state.curCheckpointIndex = payload;
     },
     updateApplyState: (state, { payload }: PayloadAction<ApplyState>) => {
       const applyState = state.codeBlockApplyStates.states.find(
@@ -577,6 +649,9 @@ export const sessionSlice = createSlice({
     selectHasCodeToEdit: (state) => {
       return state.codeToEdit.length > 0;
     },
+    selectAvailableProfiles: (state) => {
+      return state.availableProfiles;
+    },
   },
   extraReducers: (builder) => {
     addPassthroughCases(builder, [streamResponseThunk]);
@@ -640,6 +715,7 @@ export const {
   removeCodeToEdit,
   setCalling,
   cancelToolCall,
+  setAvailableProfiles,
   acceptToolCall,
   setToolGenerated,
   setToolCallOutput,
@@ -655,6 +731,7 @@ export const {
   selectIsInEditMode,
   selectIsSingleRangeEditOrInsertion,
   selectHasCodeToEdit,
+  selectAvailableProfiles,
 } = sessionSlice.selectors;
 
 export default sessionSlice.reducer;

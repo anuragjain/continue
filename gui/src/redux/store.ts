@@ -35,6 +35,8 @@ const saveSubsetFilters = [
   // Don't persist any of the edit state for now
   createFilter("editModeState", []),
   createFilter("config", ["defaultModelTitle"]),
+  createFilter("ui", ["toolSettings", "useTools"]),
+  createFilter("indexing", []),
 ];
 
 const migrations: MigrationManifest = {
@@ -63,7 +65,10 @@ const persistConfig = {
   migrate: createMigrate(migrations, { debug: false }),
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
+  persistConfig,
+  rootReducer,
+);
 
 export function setupStore() {
   return configureStore({

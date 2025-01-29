@@ -20,10 +20,16 @@ class DocsContextProvider extends BaseContextProvider {
     displayTitle: "Docs",
     description: "Type to search docs",
     type: "submenu",
+    // Todo: consider a different renderInline so that when multiple docs are referenced in one message,
+    // Or the doc has an odd name unrelated to the content
+    // The name of the doc itself doesn't skew the embedding results
+    // renderInlineAs: "<docs-context-provider>",
   };
 
   constructor(options: any) {
     super(options);
+    const docsService = DocsService.getSingleton();
+    docsService?.setGithubToken(this.options?.githubToken);
   }
 
   private async _rerankChunks(
@@ -80,6 +86,9 @@ class DocsContextProvider extends BaseContextProvider {
     query: string,
     extras: ContextProviderExtras,
   ): Promise<ContextItem[]> {
+    const nRetrieve = this.options?.nRetrieve ?? DocsContextProvider.nRetrieve;
+    const useReranking = this.options?.useReranking ?? true;
+
     // Get docs service
     const docsService = DocsService.getSingleton();
     if (!docsService) {
@@ -92,7 +101,7 @@ class DocsContextProvider extends BaseContextProvider {
     let chunks = await docsService.retrieveChunksFromQuery(
       extras.fullInput, // confusing: fullInput = the query, query = startUrl in this case
       query,
-      this.options?.nRetrieve ?? DocsContextProvider.nRetrieve,
+      nRetrieve,
     );
     if (!chunks?.length) {
       return [];
@@ -101,8 +110,8 @@ class DocsContextProvider extends BaseContextProvider {
     // We found chunks, so check if there's a favicon for the docs page
     const favicon = await docsService.getFavicon(query);
 
-    // Rerank if there's a rerankder
-    if (extras.reranker) {
+    // Rerank if there's a reranker
+    if (useReranking && extras.reranker) {
       chunks = await this._rerankChunks(
         chunks,
         extras.reranker,
@@ -171,6 +180,10 @@ class DocsContextProvider extends BaseContextProvider {
     const canUsePreindexedDocs = await docsService.canUsePreindexedDocs();
     if (canUsePreindexedDocs) {
       for (const { startUrl, title } of Object.values(preIndexedDocs)) {
+        // Skip if overridden in config
+        if (docs.find((d) => d.startUrl === startUrl)) {
+          continue;
+        }
         submenuItemsMap.set(startUrl, {
           title,
           id: startUrl,

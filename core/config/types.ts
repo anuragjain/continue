@@ -220,16 +220,8 @@ declare global {
   export interface SiteIndexingConfig {
     title: string;
     startUrl: string;
-    rootUrl?: string;
     maxDepth?: number;
     faviconUrl?: string;
-  }
-  
-  export interface SiteIndexingConfig {
-    startUrl: string;
-    rootUrl?: string;
-    title: string;
-    maxDepth?: number;
   }
   
   export interface IContextProvider {
@@ -717,7 +709,6 @@ declare global {
   
   type ContextProviderName =
     | "diff"
-    | "github"
     | "terminal"
     | "debugger"
     | "open"
@@ -956,7 +947,6 @@ declare global {
     fontSize?: number;
     displayRawMarkdown?: boolean;
     showChatScrollbar?: boolean;
-    getChatTitles?: boolean;
     codeWrap?: boolean;
   }
   

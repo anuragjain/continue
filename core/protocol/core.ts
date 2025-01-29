@@ -1,6 +1,4 @@
-import { AutocompleteInput } from "../autocomplete/util/types";
-import { ProfileDescription } from "../config/ConfigHandler";
-
+import { ConfigResult } from "@continuedev/config-yaml";
 import type {
   BrowserSerializedContinueConfig,
   ChatMessage,
@@ -9,11 +7,13 @@ import type {
   ContextProviderWithParams,
   ContextSubmenuItem,
   DiffLine,
+  DocsIndexingDetails,
   FileSymbolMap,
   IdeSettings,
   LLMFullCompletionOptions,
   ModelDescription,
   ModelRoles,
+  PromptLog,
   RangeInFile,
   SerializedContinueConfig,
   Session,
@@ -21,12 +21,8 @@ import type {
   SiteIndexingConfig,
   ToolCall,
 } from "../";
-import { ConfigResult } from "../config/load";
-
-export type ProtocolGeneratorType<T> = AsyncGenerator<{
-  done?: boolean;
-  content: T;
-}>;
+import { AutocompleteInput } from "../autocomplete/util/types";
+import { ProfileDescription } from "../config/ConfigHandler";
 
 export type OnboardingModes =
   | "Local"
@@ -104,7 +100,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
       historyIndex: number;
       selectedCode: RangeInFile[];
     },
-    ProtocolGeneratorType<string>,
+    AsyncGenerator<string>,
   ];
   "llm/complete": [
     {
@@ -121,7 +117,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
       completionOptions: LLMFullCompletionOptions;
       title: string;
     },
-    ProtocolGeneratorType<string>,
+    AsyncGenerator<string>,
   ];
   "llm/streamChat": [
     {
@@ -129,7 +125,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
       completionOptions: LLMFullCompletionOptions;
       title: string;
     },
-    ProtocolGeneratorType<ChatMessage>,
+    AsyncGenerator<ChatMessage, PromptLog>,
   ];
   streamDiffLines: [
     {
@@ -140,7 +136,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
       language: string | undefined;
       modelTitle: string | undefined;
     },
-    ProtocolGeneratorType<DiffLine>,
+    AsyncGenerator<DiffLine>,
   ];
   "chatDescriber/describe": [
     {
@@ -185,7 +181,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   "indexing/setPaused": [{ type: string; id: string; paused: boolean }, void];
   "docs/getSuggestedDocs": [undefined, void];
   "docs/initStatuses": [undefined, void];
-
+  "docs/getDetails": [{ startUrl: string }, DocsIndexingDetails];
   addAutocompleteModel: [{ model: ModelDescription }, void];
 
   "profiles/switch": [{ id: string }, undefined];
@@ -195,4 +191,6 @@ export type ToCoreFromIdeOrWebviewProtocol = {
     { toolCall: ToolCall; selectedModelTitle: string },
     { contextItems: ContextItem[] },
   ];
+  "clipboardCache/add": [{ content: string }, void];
+  "controlPlane/openUrl": [{ path: string }, void];
 };
