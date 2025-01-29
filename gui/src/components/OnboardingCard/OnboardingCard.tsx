@@ -50,7 +50,7 @@ export function OnboardingCard({ isDialog }: OnboardingCardProps) {
       data-testid="onboarding-card"
     >
       <OnboardingCardTabs
-        activeTab={onboardingCard.activeTab || "Best"}
+        activeTab={onboardingCard.activeTab}
         onTabClick={onboardingCard.setActiveTab}
       />
       {!isDialog && (

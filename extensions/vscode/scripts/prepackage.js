@@ -395,7 +395,6 @@ const exe = os === "win32" ? ".exe" : "";
       "@esbuild",
     );
   }
-
   console.log("[info] Copying sqlite node binding from core");
   await new Promise((resolve, reject) => {
     ncp(
